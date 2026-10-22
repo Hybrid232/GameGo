@@ -2,45 +2,214 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GameGo - discover and shop games across every genre and generation.">
     <link rel="stylesheet" href="styles/styles.css">
+    <script src="scripts/main.js" defer></script>
     <title>GameGo</title>
 </head>
-<header>
-    <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Game Catalog</a></li>
-        <li><a href="#">Cart</a></li>
-    </ul>
-</header>
 <body>
+    <header class="site-header">
+        <a href="index.html" class="logo-link">
+            <img src="images/gamego-logo.svg" alt="GameGo Logo" class="logo">
+        </a>
+        <nav aria-label="Main navigation">
+            <ul class="nav-list">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#game-cards">Game Catalog</a></li>
+                <li>
+                    <a href="cart.html">
+                        Cart <span class="cart-count" id="cart-count" aria-label="items in cart">0</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
     <main>
-        <img src="images/gamego-logo.svg" alt="Game Go Logo">
         <h1>GameGo Main Menu</h1>
-    
+
         <section id="our-vision">
             <h2 class="vision-title">Our Vision</h2>
-            <p id="vision-info"">Our vision is to make discovering your next favorite game simple, 
-                exciting, and accessible. We offer a diverse catalog of games across 
-                multiple genres, generations, and ratings, giving you the tools to explore, 
-                research, and find the perfect game for you.<br>
-                
-                Whether you're looking for a timeless classic or the latest release, 
-                our collection has something for every type of gamer. With helpful 
-                filters and detailed game information, we make it easy to discover 
-                new adventures and revisit old favorites.<br>
-                
-                Your next great game is just a search away. Start browsing and find your next adventure! </p>
+            <div id="vision-info">
+                <p>Our vision is to make discovering your next favorite game simple,
+                    exciting, and accessible. We offer a diverse catalog of games across
+                    multiple genres, generations, and ratings, giving you the tools to explore,
+                    research, and find the perfect game for you.</p>
+
+                <p>Whether you're looking for a timeless classic or the latest release,
+                    our collection has something for every type of gamer. With helpful
+                    filters and detailed game information, we make it easy to discover
+                    new adventures and revisit old favorites.</p>
+
+                <p>Your next great game is just a search away. Start browsing and find your next adventure!</p>
+            </div>
         </section>
+
         <section id="game-cards">
             <h2>Game Catalogue</h2>
-        </section>
-        <section id="card-model">
-    
-        </section>
-    </main>
-</body>
-<footer>
 
-</footer>
+            <!-- Search / filter controls. JS listens for "submit" and "change" on this form
+                 and maps the values to RAWG query params (search, genres, platforms, ordering). -->
+            <form id="filter-form" class="filter-form" role="search">
+                <div class="form-group">
+                    <label for="search-input">Search</label>
+                    <input type="search" id="search-input" name="search" placeholder="Search games...">
+                </div>
+
+                <div class="form-group">
+                    <label for="genre-select">Genre</label>
+                    <!-- Options can be hardcoded or filled by JS from the RAWG /genres endpoint.
+                         Values should be RAWG genre slugs. -->
+                    <select id="genre-select" name="genres">
+                        <option value="">All Genres</option>
+                        <option value="action">Action</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="role-playing-games-rpg">RPG</option>
+                        <option value="shooter">Shooter</option>
+                        <option value="strategy">Strategy</option>
+                        <option value="sports">Sports</option>
+                        <option value="puzzle">Puzzle</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="platform-select">Platform</label>
+                    <!-- Values should be RAWG parent platform IDs (/platforms/lists/parents). -->
+                    <select id="platform-select" name="parent_platforms">
+                        <option value="">All Platforms</option>
+                        <option value="1">PC</option>
+                        <option value="2">PlayStation</option>
+                        <option value="3">Xbox</option>
+                        <option value="7">Nintendo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="sort-select">Sort By</label>
+                    <!-- Values match RAWG's "ordering" param. A leading "-" means descending. -->
+                    <select id="sort-select" name="ordering">
+                        <option value="">Relevance</option>
+                        <option value="-rating">Rating</option>
+                        <option value="-released">Newest</option>
+                        <option value="name">Name (A-Z)</option>
+                        <option value="-metacritic">Metacritic</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Search</button>
+                <button type="reset" class="btn btn-secondary">Clear</button>
+            </form>
+
+            <!-- Status messages (loading, errors, "no results"). aria-live makes screen readers announce changes. -->
+            <p id="catalog-status" class="catalog-status" aria-live="polite"></p>
+
+            <!-- JS clones #game-card-template once per game and appends it here. -->
+            <div id="card-grid" class="card-grid">
+
+            </div>
+
+            <!-- Optional pagination for RAWG's "next" / "previous" page URLs. -->
+            <div class="pagination">
+                <button type="button" id="prev-page" class="btn" disabled>Previous</button>
+                <button type="button" id="next-page" class="btn" disabled>Next</button>
+            </div>
+        </section>
+
+        <!--GAME CARD TEMPLATE-->
+        <template id="game-card-template">
+            <article class="game-card" data-game-id="">
+                <button type="button" class="card-open-btn" aria-haspopup="dialog">
+                    <img class="card-image" data-field="image" src="" alt="" loading="lazy">
+                    <div class="card-body">
+                        <h3 class="card-title" data-field="title">Game Title</h3>
+                        <p class="card-genres" data-field="genres">Genres</p>
+                        <p class="card-platforms" data-field="platforms">Platforms</p>
+                        <div class="card-meta">
+                            <span class="card-rating" data-field="rating">0.0 / 5</span>
+                            <span class="card-price" data-field="price">$0.00</span>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" class="btn add-to-cart-btn" data-action="add-to-cart">Add to Cart</button>
+            </article>
+        </template>
+
+        <!--GAME DETAIL MODAL-->
+        <dialog id="game-modal" class="game-modal" aria-labelledby="modal-title">
+            <form method="dialog" class="modal-close-form">
+                <button type="submit" class="modal-close" aria-label="Close game details">&times;</button>
+            </form>
+
+            <div class="modal-content">
+                <img class="modal-image" data-field="image" src="" alt="">
+
+                <div class="modal-header">
+                    <h2 id="modal-title" data-field="title">Game Title</h2>
+                    <p class="modal-price" data-field="price">$0.00</p>
+                </div>
+
+                <!-- Quick facts. A <dl> keeps label/value pairs semantic and easy to extend. -->
+                <dl class="modal-details">
+                    <div class="detail-row">
+                        <dt>Released</dt>
+                        <dd data-field="released">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Rating</dt>
+                        <dd data-field="rating">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Metacritic</dt>
+                        <dd data-field="metacritic">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>ESRB</dt>
+                        <dd data-field="esrb">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Genres</dt>
+                        <dd data-field="genres">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Platforms</dt>
+                        <dd data-field="platforms">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Developer</dt>
+                        <dd data-field="developers">--</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Publisher</dt>
+                        <dd data-field="publishers">--</dd>
+                    </div>
+                </dl>
+
+                <section class="modal-description">
+                    <h3>About This Game</h3>
+                    <!-- RAWG gives "description" (HTML) and "description_raw" (plain text).
+                         Use textContent with description_raw to avoid injecting HTML. -->
+                    <div data-field="description"></div>
+                </section>
+
+                <section class="modal-screenshots">
+                    <h3>Screenshots</h3>
+                    <!-- JS adds an <img> per screenshot here. -->
+                    <div class="screenshot-gallery" data-field="screenshots"></div>
+                </section>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn add-to-cart-btn" data-action="add-to-cart">Add to Cart</button>
+                    <a class="btn btn-secondary" data-field="website" href="#" target="_blank" rel="noopener">Official Website</a>
+                </div>
+            </div>
+        </dialog>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 GameGo. All rights reserved.</p>
+        <p>Game data provided by <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</p>
+    </footer>
+
+</body>
 </html>

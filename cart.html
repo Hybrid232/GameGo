@@ -3,29 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Review the games in your GameGo cart.">
+    <link rel="stylesheet" href="styles/styles.css">
+    <script src="scripts/cart.js" defer></script>
     <title>GameGo Cart</title>
 </head>
-<header>
-
-</header>
 <body>
-    <main>
-        <section>
-            <h1>Your Cart</h1>
-            <!-- JS implication to show if they have items in their cart or if they 
-             need to go looking. -->
-            <p id="cart-prompt"></p> 
-        </section>
-        <section>
-            <h2>Cart</h2>
-            <div class="cart-items">
+    <header class="site-header">
+        <a href="index.html" class="logo-link">
+            <img src="images/gamego-logo.svg" alt="GameGo Logo" class="logo">
+        </a>
+        <nav aria-label="Main navigation">
+            <ul class="nav-list">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#game-cards">Game Catalog</a></li>
+                <li>
+                    <a href="cart.html" aria-current="page">
+                        Cart <span class="cart-count" id="cart-count" aria-label="items in cart">0</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
 
+    <main>
+        <section class="cart-intro">
+            <h1>Your Cart</h1>
+            <!-- JS sets this depending on whether the cart (localStorage) has items,
+                 e.g. "You have 3 games in your cart" or "Your cart is empty". -->
+            <p id="cart-prompt" aria-live="polite"></p>
+        </section>
+
+        <section class="cart-section">
+            <h2>Cart</h2>
+
+            <!-- JS clones #cart-item-template for each saved game and appends it here. -->
+            <ul id="cart-items" class="cart-items">
+
+            </ul>
+
+            <!-- Shown by JS when the cart is empty (remove the "hidden" attribute). -->
+            <div id="cart-empty" class="cart-empty" hidden>
+                <p>Your cart is empty.</p>
+                <a href="index.html#game-cards" class="btn">Browse Games</a>
             </div>
         </section>
+
+        <section class="cart-summary" aria-labelledby="summary-title">
+            <h2 id="summary-title">Order Summary</h2>
+            <dl class="summary-list">
+                <div class="summary-row">
+                    <dt>Items</dt>
+                    <dd id="summary-count">0</dd>
+                </div>
+                <div class="summary-row">
+                    <dt>Subtotal</dt>
+                    <dd id="summary-subtotal">$0.00</dd>
+                </div>
+                <div class="summary-row">
+                    <dt>Tax</dt>
+                    <dd id="summary-tax">$0.00</dd>
+                </div>
+                <div class="summary-row summary-total">
+                    <dt>Total</dt>
+                    <dd id="summary-total">$0.00</dd>
+                </div>
+            </dl>
+            <button type="button" id="checkout-btn" class="btn">Checkout</button>
+            <button type="button" id="clear-cart-btn" class="btn btn-secondary">Clear Cart</button>
+        </section>
+
+        <!--CART ITEM TEMPLATE-->
+        <template id="cart-item-template">
+            <li class="cart-item" data-game-id="">
+                <img class="cart-item-image" data-field="image" src="" alt="">
+                <div class="cart-item-info">
+                    <h3 class="cart-item-title" data-field="title">Game Title</h3>
+                    <p class="cart-item-platforms" data-field="platforms">Platforms</p>
+                    <p class="cart-item-price" data-field="price">$0.00</p>
+                </div>
+                <div class="cart-item-controls">
+                    <label>
+                        Qty
+                        <input type="number" class="cart-item-qty" data-field="quantity" min="1" max="10" value="1">
+                    </label>
+                    <p class="cart-item-subtotal" data-field="subtotal">$0.00</p>
+                    <button type="button" class="btn btn-secondary remove-btn" data-action="remove">Remove</button>
+                </div>
+            </li>
+        </template>
     </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 GameGo. All rights reserved.</p>
+        <p>Game data provided by <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</p>
+    </footer>
+
     
 </body>
-<footer>
-    
-</footer>
 </html>
