@@ -1,0 +1,124 @@
+/* Global element styles shared by every page */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-lg) var(--space-md);
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-heading);
+    line-height: 1.2;
+    margin-top: 0;
+}
+
+h1 {
+    color: var(--purple);
+    font-size: 2.25rem;
+}
+
+h2 {
+    font-size: 1.6rem;
+    border-bottom: 3px solid var(--purple);
+    padding-bottom: var(--space-xs);
+    display: inline-block;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: var(--purple);
+}
+
+a:hover {
+    color: var(--purple-dark);
+}
+
+/* visible focus ring for keyboard users */
+:focus-visible {
+    outline: 3px solid var(--purple);
+    outline-offset: 2px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-md);
+    border: 2px solid var(--purple);
+    border-radius: var(--radius);
+    background-color: var(--purple);
+    color: var(--white);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+    background-color: var(--purple-dark);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--purple);
+}
+
+.btn-secondary:hover {
+    background-color: var(--purple);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ---------- Form fields ---------- */
+input,
+select {
+    font: inherit;
+    padding: var(--space-sm);
+    border: 2px solid var(--ash);
+    border-radius: var(--radius);
+    background-color: var(--white);
+    color: var(--text);
+}
+
+input:focus,
+select:focus {
+    border-color: var(--purple);
+}
+
+label {
+    font-weight: 600;
+}
+
+[hidden] {
+    display: none !important;
+}

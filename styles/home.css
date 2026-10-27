@@ -1,0 +1,273 @@
+/* Home page: vision section, filters, game cards, and detail modal */
+
+/* ---------- Our Vision ---------- */
+#our-vision {
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background-color: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+#vision-info p {
+    max-width: 70ch;
+}
+
+/* ---------- Filter form ---------- */
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-md);
+    margin: var(--space-md) 0 var(--space-lg);
+    padding: var(--space-md);
+    background-color: var(--ash);
+    box-shadow: var(--shadow);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1 1 160px;
+}
+
+.catalog-status {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ---------- Card grid ---------- */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-lg);
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* the whole card body is a button that opens the modal */
+.card-open-btn {
+    flex: 1;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.card-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background-color: var(--ash);
+}
+
+.card-body {
+    padding: var(--space-md);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-xs);
+}
+
+.card-genres,
+.card-platforms {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-sm);
+    font-weight: 700;
+}
+
+.card-rating::before {
+    content: "\2605 "; /* star */
+    color: var(--purple);
+}
+
+.card-price {
+    color: var(--crimson);
+}
+
+.game-card .add-to-cart-btn {
+    margin: 0 var(--space-md) var(--space-md);
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+/* ---------- Game detail modal ---------- */
+.game-modal {
+    width: min(90vw, 760px);
+    max-height: 90vh;
+    padding: var(--space-lg);
+    border: 2px solid var(--purple);
+    border-radius: var(--radius);
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+.game-modal[open] {
+    animation: modal-pop 0.25s ease-out;
+}
+
+.game-modal::backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+@keyframes modal-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-close-form {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-close {
+    border: none;
+    background: none;
+    color: var(--dark-text);
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: var(--purple-light);
+}
+
+.modal-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background-color: #222;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.modal-header h2 {
+    border-bottom-color: var(--purple-light);
+}
+
+.modal-price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--purple-light);
+}
+
+.modal-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm) var(--space-lg);
+    margin: var(--space-md) 0;
+}
+
+.detail-row dt {
+    color: var(--ash);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-row dd {
+    margin: 0;
+}
+
+.modal-description h3,
+.modal-screenshots h3 {
+    color: var(--purple-light);
+}
+
+.screenshot-gallery {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+}
+
+.screenshot-gallery img {
+    height: 120px;
+    border-radius: var(--radius);
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+/* secondary button needs a lighter outline on the black modal */
+.game-modal .btn-secondary {
+    border-color: var(--purple-light);
+    color: var(--purple-light);
+}
+
+.game-modal .btn-secondary:hover {
+    color: var(--white);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    #our-vision {
+        padding: var(--space-md);
+    }
+
+    /* two cards per row, like the mobile wireframe */
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+
+    .game-modal {
+        padding: var(--space-md);
+    }
+
+    .modal-details {
+        grid-template-columns: 1fr;
+    }
+}

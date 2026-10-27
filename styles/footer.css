@@ -1,0 +1,21 @@
+/* Site footer */
+.site-footer {
+    padding: var(--space-lg) var(--space-md);
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    border-top: 4px solid var(--purple);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.site-footer p {
+    margin: var(--space-xs) 0;
+}
+
+.site-footer a {
+    color: var(--purple-light);
+}
+
+.site-footer a:hover {
+    color: var(--white);
+}
