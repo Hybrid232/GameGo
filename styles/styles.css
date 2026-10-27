@@ -1,0 +1,6 @@
+/* base stylesheet: shared by every page.
+   Page-specific styles live in home.css and cart.css. */
+@import 'variables.css';
+@import 'global.css';
+@import 'header.css';
+@import 'footer.css';
