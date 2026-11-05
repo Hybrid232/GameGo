@@ -1,0 +1,26 @@
+{
+  "name": "gamego",
+  "version": "1.0.0",
+  "description": "A digital storefront that will showcase different games (grabbed from an API), specifically background images, screenshots, ESRB rating, critic rating, price, description, and title.",
+  "main": "scripts/server.js",
+  "scripts": {
+    "start": "node scripts/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hybrid232/GameGo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Hybrid232/GameGo/issues"
+  },
+  "homepage": "https://github.com/Hybrid232/GameGo#readme",
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0"
+  }
+}
