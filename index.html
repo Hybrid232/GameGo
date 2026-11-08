@@ -6,20 +6,32 @@
     <meta name="description" content="GameGo - discover and shop games across every genre and generation.">
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/home.css">
+    <script src="scripts/menu.js" defer></script>
     <script src="scripts/main.js" defer></script>
     <title>GameGo</title>
 </head>
 <body>
     <header class="site-header">
+        <!-- hamburger menu button (only shows on mobile) -->
+        <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="nav-list">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <a href="index.html" class="logo-link">
             <img src="images/gamego-logo.svg" alt="GameGo Logo" class="logo">
         </a>
         <nav aria-label="Main navigation">
-            <ul class="nav-list">
+            <ul class="nav-list" id="nav-list">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="#game-cards">Game Catalog</a></li>
-                <li>
-                    <a href="cart.html">
+                <li class="nav-cart">
+                    <a href="cart.html" class="cart-link">
+                        <svg class="cart-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                            <path d="M3 4h2l2.5 11h11l2-8H6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="9" cy="19.5" r="1.5" fill="currentColor"/>
+                            <circle cx="17" cy="19.5" r="1.5" fill="currentColor"/>
+                        </svg>
                         Cart <span class="cart-count" id="cart-count" aria-label="items in cart">0</span>
                     </a>
                 </li>
@@ -132,7 +144,14 @@
                         </div>
                     </div>
                 </button>
-                <button type="button" class="btn add-to-cart-btn" data-action="add-to-cart">Add to Cart</button>
+                <button type="button" class="btn add-to-cart-btn" data-action="add-to-cart">
+                    <svg class="cart-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M3 4h2l2.5 11h11l2-8H6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="9" cy="19.5" r="1.5" fill="currentColor"/>
+                        <circle cx="17" cy="19.5" r="1.5" fill="currentColor"/>
+                    </svg>
+                    Add to Cart
+                </button>
             </article>
         </template>
 
@@ -200,12 +219,29 @@
                 </section>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn add-to-cart-btn" data-action="add-to-cart">Add to Cart</button>
+                    <button type="button" class="btn add-to-cart-btn" data-action="add-to-cart">
+                        <svg class="cart-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                            <path d="M3 4h2l2.5 11h11l2-8H6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="9" cy="19.5" r="1.5" fill="currentColor"/>
+                            <circle cx="17" cy="19.5" r="1.5" fill="currentColor"/>
+                        </svg>
+                        Add to Cart
+                    </button>
                     <a class="btn btn-secondary" data-field="website" href="#" target="_blank" rel="noopener">Official Website</a>
                 </div>
             </div>
         </dialog>
     </main>
+
+    <!-- floating cart button (only shows on mobile) -->
+    <a href="cart.html" class="cart-link cart-float" aria-label="Go to cart">
+        <svg class="cart-icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+            <path d="M3 4h2l2.5 11h11l2-8H6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9" cy="19.5" r="1.5" fill="currentColor"/>
+            <circle cx="17" cy="19.5" r="1.5" fill="currentColor"/>
+        </svg>
+        <span class="cart-count" aria-hidden="true">0</span>
+    </a>
 
     <footer class="site-footer">
         <p>&copy; 2026 GameGo. All rights reserved.</p>

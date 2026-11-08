@@ -122,3 +122,32 @@ label {
 [hidden] {
     display: none !important;
 }
+
+/* cart icon inside buttons and links */
+.cart-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* jingle: the cart wiggles back and forth when a game is added */
+.jingle .cart-icon {
+    animation: jingle 0.6s ease-in-out;
+}
+
+@keyframes jingle {
+    0%   { transform: rotate(0deg); }
+    20%  { transform: rotate(-15deg); }
+    40%  { transform: rotate(12deg); }
+    60%  { transform: rotate(-8deg); }
+    80%  { transform: rotate(4deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* turn animations off for people who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
