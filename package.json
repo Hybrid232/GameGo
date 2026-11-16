@@ -2,9 +2,9 @@
   "name": "gamego",
   "version": "1.0.0",
   "description": "A digital storefront that will showcase different games (grabbed from an API), specifically background images, screenshots, ESRB rating, critic rating, price, description, and title.",
-  "main": "scripts/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node scripts/server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

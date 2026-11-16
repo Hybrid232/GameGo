@@ -50,8 +50,11 @@
         <section id="game-cards">
             <h2>Game Catalogue</h2>
 
-            <!-- Search / filter controls. JS listens for "submit" and "change" on this form
-                 and maps the values to RAWG query params (search, genres, platforms, ordering). -->
+            <!-- Search / filter controls. NOTE: Steam's appdetails API (what server.js
+                 calls now) only looks up one app id at a time — it has no search, filter,
+                 sort, or pagination like RAWG did. This form doesn't do anything yet while
+                 we're testing with a single hardcoded game; it's left here for when a real
+                 catalog (e.g. a list of app ids + appdetails calls) replaces the test. -->
             <form id="filter-form" class="filter-form" role="search">
                 <div class="form-group">
                     <label for="search-input">Search</label>
@@ -60,35 +63,34 @@
 
                 <div class="form-group">
                     <label for="genre-select">Genre</label>
-                    <!-- Options can be hardcoded or filled by JS from the RAWG /genres endpoint.
-                         Values should be RAWG genre slugs. -->
+                    <!-- Values match the plain genre names Steam's "genres" field returns
+                         (e.g. { id: "1", description: "Action" }). -->
                     <select id="genre-select" name="genres">
                         <option value="">All Genres</option>
-                        <option value="action">Action</option>
-                        <option value="adventure">Adventure</option>
-                        <option value="role-playing-games-rpg">RPG</option>
-                        <option value="shooter">Shooter</option>
-                        <option value="strategy">Strategy</option>
-                        <option value="sports">Sports</option>
-                        <option value="puzzle">Puzzle</option>
+                        <option value="Action">Action</option>
+                        <option value="Adventure">Adventure</option>
+                        <option value="RPG">RPG</option>
+                        <option value="Strategy">Strategy</option>
+                        <option value="Simulation">Simulation</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Casual">Casual</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="platform-select">Platform</label>
-                    <!-- Values should be RAWG parent platform IDs (/platforms/lists/parents). -->
-                    <select id="platform-select" name="parent_platforms">
+                    <!-- Steam only sells for these three; matches the "platforms"
+                         object Steam returns: { windows, mac, linux }. -->
+                    <select id="platform-select" name="platform">
                         <option value="">All Platforms</option>
-                        <option value="1">PC</option>
-                        <option value="2">PlayStation</option>
-                        <option value="3">Xbox</option>
-                        <option value="7">Nintendo</option>
+                        <option value="windows">Windows</option>
+                        <option value="mac">Mac</option>
+                        <option value="linux">Linux</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="sort-select">Sort By</label>
-                    <!-- Values match RAWG's "ordering" param. A leading "-" means descending. -->
                     <select id="sort-select" name="ordering">
                         <option value="">Relevance</option>
                         <option value="-rating">Rating</option>
@@ -110,7 +112,7 @@
 
             </div>
 
-            <!-- Optional pagination for RAWG's "next" / "previous" page URLs. -->
+            <!-- Pagination is unused for now too — only one test game is loaded. -->
             <div class="pagination">
                 <button type="button" id="prev-page" class="btn" disabled>Previous</button>
                 <button type="button" id="next-page" class="btn" disabled>Next</button>
@@ -165,7 +167,9 @@
                         <dd data-field="metacritic">--</dd>
                     </div>
                     <div class="detail-row">
-                        <dt>ESRB</dt>
+                        <dt>Age Rating</dt>
+                        <!-- Steam's appdetails doesn't always include an ESRB rating;
+                             "required_age" (e.g. 0, 17) is the one field every game has. -->
                         <dd data-field="esrb">--</dd>
                     </div>
                     <div class="detail-row">
@@ -188,8 +192,10 @@
 
                 <section class="modal-description">
                     <h3>About This Game</h3>
-                    <!-- RAWG gives "description" (HTML) and "description_raw" (plain text).
-                         Use textContent with description_raw to avoid injecting HTML. -->
+                    <!-- Steam gives "short_description" (a line or two) and
+                         "detailed_description"/"about_the_game" (full, with HTML tags).
+                         Use textContent with short_description or about_the_game to
+                         avoid injecting raw HTML. -->
                     <div data-field="description"></div>
                 </section>
 
@@ -209,7 +215,7 @@
 
     <footer class="site-footer">
         <p>&copy; 2026 GameGo. All rights reserved.</p>
-        <p>Game data provided by <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</p>
+        <p>Game data provided by <a href="https://store.steampowered.com" target="_blank" rel="noopener">Steam</a>.</p>
     </footer>
 
 </body>
