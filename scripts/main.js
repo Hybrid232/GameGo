@@ -8,6 +8,69 @@ const nextPageBtn = document.getElementById("next-page");
 
 const PLACEHOLDER_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7";
 
+// GitHub Pages only serves static files, so there's no server here to hide
+// this key or proxy the request — it calls RAWG straight from the browser.
+// RAWG allows that (it sends Access-Control-Allow-Origin: *), but it does
+// mean this key is publicly visible in the page source.
+const RAWG_API_KEY = "761d1e1aa8814fbaba56f810b39848c7";
+const RAWG_BASE_URL = "https://api.rawg.io/api";
+const PAGE_SIZE = 12;
+
+// RAWG's query params want genre slugs and numeric platform ids, not the
+// plain labels the <select> elements use. This maps one to the other.
+const RAWG_GENRE_SLUGS = {
+  action: "action",
+  adventure: "adventure",
+  rpg: "role-playing-games-rpg",
+  strategy: "strategy",
+  simulation: "simulation",
+  sports: "sports",
+  casual: "casual",
+};
+
+const RAWG_PLATFORM_IDS = {
+  windows: 4,
+  mac: 5,
+  linux: 6,
+};
+
+// Content filter: we don't want to surface explicit/pornographic games in
+// the catalog. RAWG tags every game (including in list results, no extra
+// call needed), so we block on its own "adults-only" ESRB rating plus a
+// tag blocklist. Deliberately NOT included: "nudity", "sexual-content",
+// "sex", and bare "adult" — spot-checking RAWG's own tag data showed these
+// flag plenty of mainstream, non-pornographic games too (Cyberpunk 2077 and
+// The Witcher 3 both carry "nudity"/"sexual-content"; Saints Row: The Third
+// carries "sex"). The slugs below were checked the same way and only turned
+// up actual adult-content titles.
+const EXPLICIT_CONTENT_ESRB_SLUGS = new Set(["adults-only"]);
+const EXPLICIT_CONTENT_TAG_SLUGS = new Set([
+  "nsfw", "hentai", "hentai-game", "adult-game", "erotic", "porn", "porn-game", "sex-game",
+]);
+
+function isExplicitContent(game) {
+  if (EXPLICIT_CONTENT_ESRB_SLUGS.has(game.esrb_rating?.slug)) return true;
+  return (game.tags || []).some((tag) => EXPLICIT_CONTENT_TAG_SLUGS.has(tag.slug));
+}
+
+// RAWG is a review/database site, not a store, so it has no price data.
+// Without a backend we can't cross-reference Steam for it either (Steam's
+// API blocks direct browser calls), so price always shows as "N/A" now.
+function normalizeGame(game) {
+  return {
+    id: game.id,
+    title: game.name,
+    image: game.background_image || null,
+    genres: (game.genres || []).map((g) => g.name),
+    platforms: (game.platforms || []).map((p) => p.platform.name),
+    rating: game.rating || null,
+    released: game.released || null,
+    metacritic: game.metacritic ?? null,
+    esrb: game.esrb_rating?.name || "Not Rated",
+    price: null,
+  };
+}
+
 const state = {
   page: 1,
   filters: { search: "", genres: "", platform: "", ordering: "" },
@@ -18,26 +81,39 @@ async function loadGames() {
   prevPageBtn.disabled = true;
   nextPageBtn.disabled = true;
 
-  const params = new URLSearchParams({ page: state.page });
-  for (const [key, value] of Object.entries(state.filters)) {
-    if (value) params.set(key, value);
+  const params = new URLSearchParams({
+    key: RAWG_API_KEY,
+    page: state.page,
+    page_size: PAGE_SIZE,
+  });
+  if (state.filters.search) params.set("search", state.filters.search);
+  if (RAWG_GENRE_SLUGS[state.filters.genres.toLowerCase()]) {
+    params.set("genres", RAWG_GENRE_SLUGS[state.filters.genres.toLowerCase()]);
   }
+  if (RAWG_PLATFORM_IDS[state.filters.platform.toLowerCase()]) {
+    params.set("platforms", RAWG_PLATFORM_IDS[state.filters.platform.toLowerCase()]);
+  }
+  if (state.filters.ordering) params.set("ordering", state.filters.ordering);
 
   try {
-    const response = await fetch(`/api/games?${params}`);
+    const response = await fetch(`${RAWG_BASE_URL}/games?${params}`);
     if (!response.ok) throw new Error(`Request failed: ${response.status}`);
     const data = await response.json();
 
-    if (!data.results.length) {
+    const games = (data.results || []).filter((game) => !isExplicitContent(game)).map(normalizeGame);
+
+    if (!games.length) {
       cardGrid.innerHTML = "";
       catalogStatus.textContent = "No games found. Try different filters.";
+      prevPageBtn.disabled = state.page <= 1;
+      nextPageBtn.disabled = !data.next;
       return;
     }
 
-    renderCards(data.results);
-    catalogStatus.textContent = `Showing ${data.results.length} of ${data.count} games (source: ${data.source}).`;
-    prevPageBtn.disabled = !data.hasPrev;
-    nextPageBtn.disabled = !data.hasNext;
+    renderCards(games);
+    catalogStatus.textContent = `Showing ${games.length} of ${data.count} games.`;
+    prevPageBtn.disabled = !data.previous;
+    nextPageBtn.disabled = !data.next;
   } catch (error) {
     console.error(error);
     catalogStatus.textContent = "Couldn't load games right now. Please try again later.";
@@ -75,10 +151,23 @@ async function openGameModal(gameId) {
   gameModal.showModal();
 
   try {
-    const response = await fetch(`/api/games/${gameId}`);
-    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-    const game = await response.json();
-    populateModal(game);
+    const [detailRes, shotsRes] = await Promise.all([
+      fetch(`${RAWG_BASE_URL}/games/${gameId}?key=${RAWG_API_KEY}`),
+      fetch(`${RAWG_BASE_URL}/games/${gameId}/screenshots?key=${RAWG_API_KEY}`),
+    ]);
+    if (!detailRes.ok) throw new Error(`Request failed: ${detailRes.status}`);
+    const game = await detailRes.json();
+    if (isExplicitContent(game)) throw new Error("This game is not available.");
+    const shotsData = shotsRes.ok ? await shotsRes.json() : { results: [] };
+
+    populateModal({
+      ...normalizeGame(game),
+      developers: (game.developers || []).map((d) => d.name),
+      publishers: (game.publishers || []).map((p) => p.name),
+      description: game.description_raw || "",
+      website: game.website || "",
+      screenshots: (shotsData.results || []).map((s) => s.image),
+    });
   } catch (error) {
     console.error(error);
     gameModal.querySelector('[data-field="title"]').textContent = "Couldn't load details";
