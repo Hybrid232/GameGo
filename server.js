@@ -50,13 +50,16 @@ const PRICE_LOOKUP_TIMEOUT_MS = 4000;
 
 // Content filter: we don't want to surface explicit/pornographic games in
 // the catalog. RAWG tags every game (including in list results, no extra
-// call needed), so we block on its own "adults-only" ESRB rating plus the
-// tag slugs it actually uses for this kind of content (verified against
-// RAWG's live tag search — e.g. "nsfw" alone currently matches ~5,000 games).
+// call needed), so we block on its own "adults-only" ESRB rating plus a
+// tag blocklist. Deliberately NOT included: "nudity", "sexual-content",
+// "sex", and bare "adult" — spot-checking RAWG's own tag data showed these
+// flag plenty of mainstream, non-pornographic games too (Cyberpunk 2077 and
+// The Witcher 3 both carry "nudity"/"sexual-content"; Saints Row: The Third
+// carries "sex"). The slugs below were checked the same way and only turned
+// up actual adult-content titles.
 const EXPLICIT_CONTENT_ESRB_SLUGS = new Set(["adults-only"]);
 const EXPLICIT_CONTENT_TAG_SLUGS = new Set([
-  "nsfw", "nudity", "sexual-content", "hentai", "hentai-game", "adult",
-  "adult-game", "erotic", "porn", "porn-game", "sex", "sex-game",
+  "nsfw", "hentai", "hentai-game", "adult-game", "erotic", "porn", "porn-game", "sex-game",
 ]);
 
 function isRawgExplicitContent(game) {
@@ -292,6 +295,7 @@ app.get("/api/games/:id", async (req, res) => {
 
     return res.status(400).json({ error: "Unrecognized game id." });
   } catch (error) {
+    console.error(`Detail lookup failed for ${req.params.id}:`, error.message);
     res.status(502).json({ error: "Could not load details for that game." });
   }
 });
