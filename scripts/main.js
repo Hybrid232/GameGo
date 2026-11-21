@@ -120,8 +120,21 @@ async function loadGames() {
   }
 }
 
+// ---------- Fade cards in as they scroll into view ----------
+// The observer watches each card and tells us when it enters the screen.
+// Then we add the "visible" class, which plays the fade-in in home.css.
+const cardObserver = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      cardObserver.unobserve(entry.target); // only fade in once
+    }
+  });
+}, { threshold: 0.15 }); // 15% of the card has to be showing
+
 function renderCards(games) {
   cardGrid.innerHTML = "";
+  cardObserver.disconnect(); // stop watching the old page of cards
 
   for (const game of games) {
     const card = cardTemplate.content.cloneNode(true);
@@ -141,6 +154,7 @@ function renderCards(games) {
     article.querySelector(".card-open-btn").addEventListener("click", () => openGameModal(game.id));
 
     cardGrid.appendChild(card);
+    cardObserver.observe(article); // fade it in when it scrolls into view
   }
 }
 
@@ -148,6 +162,8 @@ async function openGameModal(gameId) {
   gameModal.querySelector('[data-field="title"]').textContent = "Loading...";
   gameModal.querySelector('[data-field="description"]').textContent = "";
   gameModal.querySelector('[data-field="screenshots"]').innerHTML = "";
+  carouselImages = []; // clear the last game's pictures while this one loads
+  showCarouselImage(0);
   gameModal.showModal();
 
   try {
@@ -177,9 +193,16 @@ async function openGameModal(gameId) {
 }
 
 function populateModal(game) {
-  const image = gameModal.querySelector('[data-field="image"]');
-  image.src = game.image || PLACEHOLDER_IMAGE;
-  image.alt = game.title;
+  // Carousel list: the cover image first, then every screenshot.
+  // (RAWG's first screenshot is often the cover again, so skip repeats.)
+  carouselImages = [];
+  if (game.image) carouselImages.push(game.image);
+  for (const shot of game.screenshots || []) {
+    if (!carouselImages.includes(shot)) carouselImages.push(shot);
+  }
+  carouselTitle = game.title;
+  showCarouselImage(0);
+  startSlideshow(); // start sliding through the pictures
 
   gameModal.querySelector('[data-field="title"]').textContent = game.title;
   gameModal.querySelector('[data-field="price"]').textContent = game.price || "N/A";
@@ -203,9 +226,186 @@ function populateModal(game) {
     const img = document.createElement("img");
     img.src = shot;
     img.alt = `${game.title} screenshot`;
+    // clicking a thumbnail opens that picture in the big image viewer
+    img.addEventListener("click", function () {
+      openImageViewer(carouselImages.indexOf(shot));
+    });
     gallery.appendChild(img);
   }
 }
+
+// ---------- Modal image carousel ----------
+const carouselImage = gameModal.querySelector(".modal-image");
+const carouselPrevBtn = gameModal.querySelector(".carousel-prev");
+const carouselNextBtn = gameModal.querySelector(".carousel-next");
+const carouselCount = gameModal.querySelector(".carousel-count");
+
+let carouselImages = []; // every image url for the open game
+let carouselIndex = 0;   // which image is showing right now
+let carouselTitle = "";  // game title, used for the alt text
+
+// Shows the image at "index". Going past the end wraps back to the start
+// (and going before the start wraps to the end).
+function showCarouselImage(index) {
+  const total = carouselImages.length;
+
+  // no images yet (still loading, or the game has none)
+  if (total === 0) {
+    carouselImage.src = PLACEHOLDER_IMAGE;
+    carouselImage.alt = "";
+    carouselCount.textContent = "";
+    carouselPrevBtn.hidden = true;
+    carouselNextBtn.hidden = true;
+    return;
+  }
+
+  // wrap around: -1 becomes the last image, total becomes 0
+  carouselIndex = (index + total) % total;
+
+  carouselImage.src = carouselImages[carouselIndex];
+  carouselImage.alt = `${carouselTitle} image ${carouselIndex + 1} of ${total}`;
+  carouselCount.textContent = `${carouselIndex + 1} / ${total}`;
+
+  // replay the slide-in animation (same trick as jingleCart)
+  carouselImage.classList.remove("slide-in");
+  void carouselImage.offsetWidth;
+  carouselImage.classList.add("slide-in");
+
+  // arrows only make sense when there is more than one image
+  carouselPrevBtn.hidden = total < 2;
+  carouselNextBtn.hidden = total < 2;
+}
+
+// ---------- Slideshow: move to the next image every 2 seconds ----------
+const SLIDE_DELAY = 2000; // 2 seconds
+let slideshowTimer = null;
+
+function startSlideshow() {
+  stopSlideshow(); // never run two timers at once
+  if (carouselImages.length < 2) return;
+  slideshowTimer = setInterval(function () {
+    showCarouselImage(carouselIndex + 1);
+  }, SLIDE_DELAY);
+}
+
+function stopSlideshow() {
+  clearInterval(slideshowTimer);
+  slideshowTimer = null;
+}
+
+// the arrows restart the timer so the picture doesn't change right after a click
+carouselPrevBtn.addEventListener("click", function () {
+  showCarouselImage(carouselIndex - 1);
+  startSlideshow();
+});
+
+carouselNextBtn.addEventListener("click", function () {
+  showCarouselImage(carouselIndex + 1);
+  startSlideshow();
+});
+
+// clicking the big image opens it in the full-size viewer
+carouselImage.addEventListener("click", function () {
+  if (carouselImages.length > 0) openImageViewer(carouselIndex);
+});
+
+// stop the slideshow when the game modal closes
+gameModal.addEventListener("close", stopSlideshow);
+
+// ---------- Full-size image viewer (a second modal) ----------
+const imageViewer = document.getElementById("image-viewer");
+const viewerImage = imageViewer.querySelector(".viewer-image");
+const viewerPrevBtn = imageViewer.querySelector(".viewer-prev");
+const viewerNextBtn = imageViewer.querySelector(".viewer-next");
+const viewerCount = imageViewer.querySelector(".viewer-count");
+
+let viewerIndex = 0; // which picture the viewer is showing
+
+// Shows picture number "index" in the viewer (wraps around like the carousel)
+function showViewerImage(index) {
+  const total = carouselImages.length;
+  viewerIndex = (index + total) % total;
+
+  viewerImage.src = carouselImages[viewerIndex];
+  viewerImage.alt = `${carouselTitle} image ${viewerIndex + 1} of ${total}`;
+  viewerCount.textContent = `${viewerIndex + 1} / ${total}`;
+
+  viewerPrevBtn.hidden = total < 2;
+  viewerNextBtn.hidden = total < 2;
+}
+
+function openImageViewer(index) {
+  stopSlideshow(); // pause the small slideshow behind it
+  showViewerImage(index);
+  imageViewer.showModal();
+}
+
+// when the viewer closes, the game modal picks up from the same picture
+imageViewer.addEventListener("close", function () {
+  showCarouselImage(viewerIndex);
+  startSlideshow();
+});
+
+viewerPrevBtn.addEventListener("click", function () {
+  showViewerImage(viewerIndex - 1);
+});
+
+viewerNextBtn.addEventListener("click", function () {
+  showViewerImage(viewerIndex + 1);
+});
+
+// clicking the picture goes to the next one
+viewerImage.addEventListener("click", function () {
+  showViewerImage(viewerIndex + 1);
+});
+
+// left / right arrow keys
+imageViewer.addEventListener("keydown", function (event) {
+  if (event.key === "ArrowLeft") showViewerImage(viewerIndex - 1);
+  if (event.key === "ArrowRight") showViewerImage(viewerIndex + 1);
+});
+
+// Mouse wheel / trackpad scroll. One scroll fires lots of "wheel" events,
+// so after changing pictures we ignore the wheel for a short moment.
+let wheelPaused = false;
+
+imageViewer.addEventListener("wheel", function (event) {
+  event.preventDefault(); // don't scroll the page behind
+  if (wheelPaused) return;
+
+  if (event.deltaY > 0 || event.deltaX > 0) {
+    showViewerImage(viewerIndex + 1); // scrolling down = next
+  } else {
+    showViewerImage(viewerIndex - 1); // scrolling up = previous
+  }
+
+  wheelPaused = true;
+  setTimeout(function () {
+    wheelPaused = false;
+  }, 400);
+});
+
+// ---------- Close a modal by clicking outside it ----------
+// Clicks on the dark backdrop count as clicks on the <dialog> itself, so we
+// check if the mouse was outside the dialog's box before closing it.
+// Both the game modal and the image viewer use this.
+function closeOnOutsideClick(dialog) {
+  dialog.addEventListener("click", function (event) {
+    if (event.target !== dialog) return; // clicked something inside the card
+
+    const box = dialog.getBoundingClientRect();
+    const clickedOutside =
+      event.clientX < box.left || event.clientX > box.right ||
+      event.clientY < box.top || event.clientY > box.bottom;
+
+    if (clickedOutside) {
+      dialog.close();
+    }
+  });
+}
+
+closeOnOutsideClick(gameModal);
+closeOnOutsideClick(imageViewer);
 
 filterForm.addEventListener("submit", (event) => {
   event.preventDefault();

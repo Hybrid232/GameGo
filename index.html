@@ -164,7 +164,15 @@
             </form>
 
             <div class="modal-content">
-                <img class="modal-image" data-field="image" src="" alt="">
+                <!-- Image carousel: JS fills it with the cover image plus every
+                     screenshot and slides to the next one every 2 seconds.
+                     Click the image to open the full-size viewer below. -->
+                <div class="carousel">
+                    <button type="button" class="carousel-btn carousel-prev" aria-label="Previous image">&#10094;</button>
+                    <img class="modal-image" data-field="image" src="" alt="" title="Click to view full size">
+                    <button type="button" class="carousel-btn carousel-next" aria-label="Next image">&#10095;</button>
+                    <p class="carousel-count" aria-live="polite"></p>
+                </div>
 
                 <div class="modal-header">
                     <h2 id="modal-title" data-field="title">Game Title</h2>
@@ -220,7 +228,7 @@
 
                 <section class="modal-screenshots">
                     <h3>Screenshots</h3>
-                    <!-- JS adds an <img> per screenshot here. -->
+                    <!-- JS adds an <img> per screenshot here. Clicking one shows it in the carousel above. -->
                     <div class="screenshot-gallery" data-field="screenshots"></div>
                 </section>
 
@@ -236,6 +244,22 @@
                     <a class="btn btn-secondary" data-field="website" href="#" target="_blank" rel="noopener">Official Website</a>
                 </div>
             </div>
+        </dialog>
+
+        <!--FULL-SIZE IMAGE VIEWER (opens on top of the game modal)-->
+        <!-- Move through the pictures with the arrows, the arrow keys,
+             the mouse wheel, or by clicking the picture. -->
+        <dialog id="image-viewer" class="image-viewer" aria-label="Game images">
+            <form method="dialog" class="modal-close-form">
+                <button type="submit" class="modal-close" aria-label="Close image viewer">&times;</button>
+            </form>
+
+            <div class="carousel">
+                <button type="button" class="carousel-btn viewer-prev" aria-label="Previous image">&#10094;</button>
+                <img class="viewer-image" src="" alt="" title="Click for the next image">
+                <button type="button" class="carousel-btn viewer-next" aria-label="Next image">&#10095;</button>
+            </div>
+            <p class="viewer-count" aria-live="polite"></p>
         </dialog>
     </main>
 

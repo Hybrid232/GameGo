@@ -63,6 +63,11 @@
     }
 }
 
+/* when the "Game Catalog" link scrolls here, stop below the sticky header */
+#game-cards {
+    scroll-margin-top: 100px;
+}
+
 /* ---------- Filter form ---------- */
 .filter-form {
     display: flex;
@@ -107,6 +112,29 @@
 .game-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-hover);
+}
+
+/* Cards start hidden. main.js adds "visible" when a card scrolls into view.
+   The animation uses "translate" (not "transform") so it doesn't fight
+   with the hover lift above. */
+.game-card {
+    opacity: 0;
+}
+
+.game-card.visible {
+    opacity: 1;
+    animation: card-fade-in 0.6s ease-out;
+}
+
+@keyframes card-fade-in {
+    from {
+        opacity: 0;
+        translate: 0 30px;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
 }
 
 /* the whole card body is a button that opens the modal */
@@ -183,6 +211,18 @@
     color: var(--dark-text);
 }
 
+/* While any modal is open, lock the page behind it so it can't scroll */
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+/* when the modal's own content hits the top or bottom, don't pass the
+   scroll on to the page behind it */
+.game-modal,
+.image-viewer {
+    overscroll-behavior: contain;
+}
+
 .game-modal[open] {
     animation: modal-pop 0.25s ease-out;
 }
@@ -226,6 +266,108 @@
     object-fit: cover;
     border-radius: var(--radius);
     background-color: #222;
+    cursor: pointer; /* clicking it shows the next image */
+}
+
+/* ---------- Modal image carousel ---------- */
+/* relative so the arrows and counter can sit on top of the image */
+.carousel {
+    position: relative;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--white);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.carousel-btn:hover {
+    background-color: var(--purple);
+}
+
+.carousel-prev,
+.viewer-prev {
+    left: var(--space-sm);
+}
+
+.carousel-next,
+.viewer-next {
+    right: var(--space-sm);
+}
+
+/* main.js adds this class every time the picture changes */
+.modal-image.slide-in {
+    animation: image-slide-in 0.5s ease-out;
+}
+
+@keyframes image-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ---------- Full-size image viewer ---------- */
+.image-viewer {
+    width: min(95vw, 1200px);
+    max-height: 95vh;
+    padding: var(--space-md);
+    border: 2px solid var(--purple);
+    border-radius: var(--radius);
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+.image-viewer[open] {
+    animation: modal-pop 0.25s ease-out;
+}
+
+/* a bit darker than the game modal so the picture stands out */
+.image-viewer::backdrop {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.viewer-image {
+    width: 100%;
+    max-height: 75vh;
+    object-fit: contain; /* show the whole picture, no cropping */
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.viewer-count {
+    margin: var(--space-sm) 0 0;
+    text-align: center;
+}
+
+/* "2 / 8" counter in the bottom corner */
+.carousel-count {
+    position: absolute;
+    right: var(--space-sm);
+    bottom: var(--space-sm);
+    margin: 0;
+    padding: 0 var(--space-sm);
+    border-radius: var(--radius);
+    background-color: rgba(0, 0, 0, 0.6);
+    font-size: 0.85rem;
+}
+
+/* hide the empty counter while a game is loading */
+.carousel-count:empty {
+    display: none;
 }
 
 .modal-header {
@@ -278,6 +420,7 @@
 .screenshot-gallery img {
     height: 120px;
     border-radius: var(--radius);
+    cursor: pointer; /* clicking one shows it in the carousel */
 }
 
 .modal-actions {
