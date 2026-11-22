@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A digital storefront that showcases different games (grabbed from the RAWG API directly in the browser), specifically background images, screenshots, ESRB rating, critic rating, description, and title.",
   "scripts": {
-    "start": "npx serve .",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/Hybrid232/GameGo/issues"
   },
-  "homepage": "https://github.com/Hybrid232/GameGo#readme"
+  "homepage": "https://github.com/Hybrid232/GameGo#readme",
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
 }

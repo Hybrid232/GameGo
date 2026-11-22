@@ -11,8 +11,9 @@ const PLACEHOLDER_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAE
 // GitHub Pages only serves static files, so there's no server here to hide
 // this key or proxy the request — it calls RAWG straight from the browser.
 // RAWG allows that (it sends Access-Control-Allow-Origin: *), but it does
-// mean this key is publicly visible in the page source.
-const RAWG_API_KEY = "761d1e1aa8814fbaba56f810b39848c7";
+// mean this key ends up visible in the built page source. Vite inlines it
+// from .env (VITE_RAWG_API_KEY) at build time so it's out of source control.
+const RAWG_API_KEY = import.meta.env.VITE_RAWG_API_KEY;
 const RAWG_BASE_URL = "https://api.rawg.io/api";
 const PAGE_SIZE = 12;
 
